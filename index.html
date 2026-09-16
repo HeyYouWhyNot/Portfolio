@@ -154,6 +154,7 @@
     position:absolute;top:18px;right:20px;width:42px;height:42px;border-radius:50%;
     border:none;background:rgba(255,255,255,0.12);color:#fff;font-size:24px;line-height:1;
     cursor:pointer;display:flex;align-items:center;justify-content:center;
+    z-index:5;
   }
   .lightbox-close:hover{background:rgba(255,255,255,0.22);}
   @media (max-width:640px){
@@ -336,8 +337,11 @@
   }
 
   .lightbox model-viewer{
-    width:min(90vw,880px);height:min(80vh,640px);
+    display:block;width:min(90vw,880px);height:min(80vh,640px);
     background:transparent;--poster-color:transparent;
+    transform-origin:center center;
+    transition:transform 0.15s ease-out;
+    position:relative;z-index:1;
   }
 
   @media (max-width:640px){
@@ -855,13 +859,14 @@
     });
 
     // Interactive models "break out of the box" — scroll/pinch-zooming into
-    // one of the inline (blended) models scales the whole element up past
-    // its own card instead of clipping at its fixed-size edge. Driven off
-    // model-viewer's own camera radius, so it only reacts to the user
-    // actually zooming in (not the ambient auto-rotate).
-    document.querySelectorAll('model-viewer.model-inline').forEach(function(mv){
+    // a model scales the whole element up past its own fixed-size box
+    // instead of clipping at its edge. Driven off model-viewer's own camera
+    // radius, so it only reacts to the user actually zooming in (not the
+    // ambient auto-rotate). Shared by every inline model on the page AND
+    // the lightbox's own model-viewer, so the "no window" effect still
+    // applies once a model is expanded full-size.
+    function bindZoomGrow(mv, maxScale, onToggle){
       var baseRadius = null;
-      var maxScale = 2.6;
       mv.addEventListener('load', function(){
         try{ baseRadius = mv.getCameraOrbit().radius; }catch(err){}
       });
@@ -873,8 +878,13 @@
         var ratio = baseRadius / orbit.radius;
         ratio = Math.max(1, Math.min(ratio, maxScale));
         mv.style.transform = ratio > 1.01 ? 'scale(' + ratio.toFixed(3) + ')' : '';
+        if(onToggle){ onToggle(ratio > 1.01); }
+      });
+    }
+    document.querySelectorAll('model-viewer.model-inline').forEach(function(mv){
+      bindZoomGrow(mv, 2.6, function(isZoomed){
         var wrap = mv.closest('.model-wrap');
-        if(wrap){ wrap.classList.toggle('zoomed', ratio > 1.01); }
+        if(wrap){ wrap.classList.toggle('zoomed', isZoomed); }
       });
     });
 
@@ -948,6 +958,7 @@
       document.body.style.overflow = 'hidden';
     }
     function openModelLightbox(mv){
+      lightboxModel.style.transform = '';
       lightboxModel.setAttribute('src', mv.getAttribute('src'));
       lightboxModel.setAttribute('alt', mv.getAttribute('alt') || '');
       lightboxModel.style.display = '';
@@ -963,7 +974,12 @@
       lightboxImg.style.display = '';
       lightboxModel.removeAttribute('src');
       lightboxModel.style.display = 'none';
+      lightboxModel.style.transform = '';
     }
+    // The lightbox model gets the same "breaks out of the box" zoom as any
+    // inline model — extra headroom since the lightbox itself has plenty of
+    // empty backdrop to grow into.
+    bindZoomGrow(lightboxModel, 3);
 
     document.querySelectorAll('.hscroll img').forEach(function(img){
       img.addEventListener('click', function(){ openImageLightbox(img); });
