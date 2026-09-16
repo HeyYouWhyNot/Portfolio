@@ -860,29 +860,70 @@
 
     // Interactive models "break out of the box" — scroll/pinch-zooming into
     // a model scales the whole element up past its own fixed-size box
-    // instead of clipping at its edge. Driven off model-viewer's own camera
-    // radius, so it only reacts to the user actually zooming in (not the
-    // ambient auto-rotate). Shared by every inline model on the page AND
-    // the lightbox's own model-viewer, so the "no window" effect still
-    // applies once a model is expanded full-size.
+    // instead of clipping at its edge.
+    //
+    // This used to react to model-viewer's own camera radius (getCameraOrbit),
+    // letting model-viewer's built-in scroll/pinch dolly-zoom drive the camera
+    // physically closer and then CSS-scaling the result to match. That was the
+    // bug behind the "cutoff" effect: model-viewer's camera has a fixed field
+    // of view, so zooming the camera in close can clip the model's geometry
+    // *inside its own WebGL canvas*, before CSS ever sees it — a CSS
+    // transform:scale() on top just magnifies an already-clipped render.
+    //
+    // Fixed by disabling model-viewer's own zoom entirely (disable-zoom) and
+    // driving 100% of the zoom ourselves via wheel/pinch listeners that only
+    // ever touch a CSS scale. The camera's radius never changes, so the model
+    // is always fully rendered — there's nothing left to clip.
     function bindZoomGrow(mv, maxScale, onToggle){
-      var baseRadius = null;
-      mv.addEventListener('load', function(){
-        try{ baseRadius = mv.getCameraOrbit().radius; }catch(err){}
+      var zoom = 1;
+      var pinchStartDist = null;
+      var pinchStartZoom = 1;
+
+      mv.setAttribute('disable-zoom', '');
+
+      function apply(){
+        mv.style.transform = zoom > 1.01 ? 'scale(' + zoom.toFixed(3) + ')' : '';
+        if(onToggle){ onToggle(zoom > 1.01); }
+      }
+
+      function touchDist(touches){
+        var dx = touches[0].clientX - touches[1].clientX;
+        var dy = touches[0].clientY - touches[1].clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+
+      mv.addEventListener('wheel', function(e){
+        e.preventDefault();
+        zoom = Math.max(1, Math.min(zoom * Math.exp(-e.deltaY * 0.0018), maxScale));
+        apply();
+      }, { passive: false });
+
+      mv.addEventListener('touchstart', function(e){
+        if(e.touches.length === 2){
+          pinchStartDist = touchDist(e.touches);
+          pinchStartZoom = zoom;
+        }
+      }, { passive: true });
+
+      mv.addEventListener('touchmove', function(e){
+        if(e.touches.length === 2 && pinchStartDist){
+          e.preventDefault();
+          var dist = touchDist(e.touches);
+          zoom = Math.max(1, Math.min(pinchStartZoom * (dist / pinchStartDist), maxScale));
+          apply();
+        }
+      }, { passive: false });
+
+      mv.addEventListener('touchend', function(e){
+        if(e.touches.length < 2){ pinchStartDist = null; }
       });
-      mv.addEventListener('camera-change', function(ev){
-        if(!baseRadius) return;
-        if(ev.detail && ev.detail.source && ev.detail.source !== 'user-interaction') return;
-        var orbit;
-        try{ orbit = mv.getCameraOrbit(); }catch(err){ return; }
-        var ratio = baseRadius / orbit.radius;
-        ratio = Math.max(1, Math.min(ratio, maxScale));
-        mv.style.transform = ratio > 1.01 ? 'scale(' + ratio.toFixed(3) + ')' : '';
-        if(onToggle){ onToggle(ratio > 1.01); }
-      });
+
+      return {
+        reset: function(){ zoom = 1; pinchStartDist = null; apply(); }
+      };
     }
     document.querySelectorAll('model-viewer.model-inline').forEach(function(mv){
-      bindZoomGrow(mv, 2.6, function(isZoomed){
+      mv._zoomCtrl = bindZoomGrow(mv, 2.6, function(isZoomed){
         var wrap = mv.closest('.model-wrap');
         if(wrap){ wrap.classList.toggle('zoomed', isZoomed); }
       });
@@ -902,7 +943,7 @@
 
       function resetZoom(slide){
         var mv = slide.querySelector('model-viewer');
-        if(mv){ mv.style.transform = ''; }
+        if(mv && mv._zoomCtrl){ mv._zoomCtrl.reset(); }
         slide.classList.remove('zoomed');
       }
 
@@ -958,7 +999,7 @@
       document.body.style.overflow = 'hidden';
     }
     function openModelLightbox(mv){
-      lightboxModel.style.transform = '';
+      if(lightboxZoomCtrl){ lightboxZoomCtrl.reset(); }
       lightboxModel.setAttribute('src', mv.getAttribute('src'));
       lightboxModel.setAttribute('alt', mv.getAttribute('alt') || '');
       lightboxModel.style.display = '';
@@ -974,12 +1015,12 @@
       lightboxImg.style.display = '';
       lightboxModel.removeAttribute('src');
       lightboxModel.style.display = 'none';
-      lightboxModel.style.transform = '';
+      if(lightboxZoomCtrl){ lightboxZoomCtrl.reset(); }
     }
     // The lightbox model gets the same "breaks out of the box" zoom as any
     // inline model — extra headroom since the lightbox itself has plenty of
     // empty backdrop to grow into.
-    bindZoomGrow(lightboxModel, 3);
+    var lightboxZoomCtrl = bindZoomGrow(lightboxModel, 3);
 
     document.querySelectorAll('.hscroll img').forEach(function(img){
       img.addEventListener('click', function(){ openImageLightbox(img); });
