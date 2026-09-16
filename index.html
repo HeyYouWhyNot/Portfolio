@@ -929,6 +929,147 @@
       });
     });
 
+    // Double-click-and-HOLD a model to "grab" it: it pops out of its box,
+    // follows the mouse for as long as the button stays down, and — once
+    // you let go — gets thrown across the screen using whatever speed and
+    // direction your hand was moving in, then falls under gravity. Once
+    // it's fully off-screen it fades out, waits a moment, then fades back
+    // into its original spot at its original size and orientation.
+    //
+    // A native "dblclick" event only fires once the button is already back
+    // up, which is too late to still be "held" — so this is detected off
+    // raw mousedown timing/position instead: two mousedowns close together
+    // in time and space count as a double-click, and since the second one's
+    // button is still down at that moment, that's the instant the grab
+    // begins.
+    function bindGrabThrow(mv, wrap){
+      var DBLCLICK_MS = 400, DBLCLICK_PX = 24, GRAVITY = 2200, MAX_SPEED = 3500;
+      var lastDownTime = 0, lastDownX = 0, lastDownY = 0;
+      var state = 'idle'; // idle | held | flying | fading
+      var grabDX = 0, grabDY = 0, curX = 0, curY = 0, rot = 0, rotV = 0, vx = 0, vy = 0;
+      var originTransform = '', wrapPrevHeight = '', moveSamples = [];
+      var expandBtn = wrap ? wrap.querySelector('.model-expand-btn') : null;
+      var lockHeight = !!(wrap && !wrap.classList.contains('carousel-slide'));
+
+      function startGrab(e){
+        state = 'held';
+        var rect = mv.getBoundingClientRect();
+        originTransform = mv.style.transform || '';
+        // Freeze the model's own orientation for the whole gesture — it
+        // should come back looking exactly like it left, not mid-spin.
+        mv.removeAttribute('camera-controls');
+        mv.removeAttribute('auto-rotate');
+        mv.style.pointerEvents = 'none';
+        if(expandBtn){ expandBtn.style.visibility = 'hidden'; }
+        if(lockHeight){ wrapPrevHeight = wrap.style.height; wrap.style.height = rect.height + 'px'; }
+        grabDX = e.clientX - rect.left;
+        grabDY = e.clientY - rect.top;
+        curX = rect.left; curY = rect.top; rot = 0;
+        mv.style.position = 'fixed';
+        mv.style.left = curX + 'px';
+        mv.style.top = curY + 'px';
+        mv.style.width = rect.width + 'px';
+        mv.style.height = rect.height + 'px';
+        mv.style.margin = '0';
+        mv.style.zIndex = '500';
+        mv.style.transition = 'none';
+        mv.style.transform = 'rotate(0deg)';
+        mv.style.cursor = 'grabbing';
+        moveSamples = [{ x: e.clientX, y: e.clientY, t: performance.now() }];
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      }
+
+      function onMove(e){
+        if(state !== 'held') return;
+        curX = e.clientX - grabDX;
+        curY = e.clientY - grabDY;
+        mv.style.left = curX + 'px';
+        mv.style.top = curY + 'px';
+        moveSamples.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+        if(moveSamples.length > 6){ moveSamples.shift(); }
+      }
+
+      function onUp(){
+        if(state !== 'held') return;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        vx = 0; vy = 0;
+        if(moveSamples.length > 1){
+          var first = moveSamples[0], last = moveSamples[moveSamples.length - 1];
+          var dt = Math.max(last.t - first.t, 16);
+          vx = Math.max(-MAX_SPEED, Math.min((last.x - first.x) / dt * 1000, MAX_SPEED));
+          vy = Math.max(-MAX_SPEED, Math.min((last.y - first.y) / dt * 1000, MAX_SPEED));
+        }
+        rotV = vx * 0.05;
+        state = 'flying';
+        mv.style.cursor = '';
+        var lastT = performance.now();
+        (function step(){
+          var t = performance.now();
+          var dt2 = Math.min((t - lastT) / 1000, 0.05);
+          lastT = t;
+          vy += GRAVITY * dt2;
+          curX += vx * dt2;
+          curY += vy * dt2;
+          rot += rotV * dt2;
+          mv.style.left = curX + 'px';
+          mv.style.top = curY + 'px';
+          mv.style.transform = 'rotate(' + rot.toFixed(1) + 'deg)';
+          var vw = window.innerWidth, vh = window.innerHeight;
+          var w = mv.offsetWidth, h = mv.offsetHeight;
+          var fullyOut = (curX + w < 0) || (curX > vw) || (curY + h < 0) || (curY > vh * 1.3);
+          if(fullyOut){ settleAway(); } else { requestAnimationFrame(step); }
+        })();
+      }
+
+      function settleAway(){
+        state = 'fading';
+        mv.style.transition = 'opacity 0.25s ease';
+        mv.style.opacity = '0';
+        setTimeout(returnHome, 550);
+      }
+
+      function returnHome(){
+        mv.style.transition = 'none';
+        mv.style.position = '';
+        mv.style.left = '';
+        mv.style.top = '';
+        mv.style.width = '';
+        mv.style.height = '';
+        mv.style.margin = '';
+        mv.style.zIndex = '';
+        mv.style.cursor = '';
+        mv.style.pointerEvents = '';
+        mv.style.transform = originTransform;
+        if(lockHeight){ wrap.style.height = wrapPrevHeight; }
+        if(expandBtn){ expandBtn.style.visibility = ''; }
+        void mv.offsetWidth; // force reflow so the fade-in below actually transitions
+        mv.style.transition = 'opacity 0.4s ease';
+        mv.style.opacity = '1';
+        mv.setAttribute('camera-controls', '');
+        mv.setAttribute('auto-rotate', '');
+        state = 'idle';
+        setTimeout(function(){ mv.style.transition = ''; }, 420);
+      }
+
+      mv.addEventListener('mousedown', function(e){
+        if(e.button !== 0 || state !== 'idle') return;
+        var t = performance.now();
+        var isDouble = (t - lastDownTime) < DBLCLICK_MS &&
+          Math.hypot(e.clientX - lastDownX, e.clientY - lastDownY) < DBLCLICK_PX;
+        lastDownTime = t; lastDownX = e.clientX; lastDownY = e.clientY;
+        if(isDouble){
+          e.preventDefault();
+          e.stopPropagation();
+          startGrab(e);
+        }
+      });
+    }
+    document.querySelectorAll('model-viewer.model-inline').forEach(function(mv){
+      bindGrabThrow(mv, mv.closest('.model-wrap'));
+    });
+
     // One-at-a-time model carousel — hovering the left/right edge of the
     // active model reveals an arrow; clicking it swaps to the previous/next
     // model. Touch devices (no hover) just get the arrows shown outright.
