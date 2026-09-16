@@ -1053,6 +1053,16 @@
         setTimeout(function(){ mv.style.transition = ''; }, 420);
       }
 
+      // Listen in the CAPTURE phase, not the default bubble phase. model-viewer
+      // renders its own orbit/pan controls inside a shadow DOM, and its internal
+      // pointer handling can call stopPropagation() on its way back up — which
+      // would silently swallow a bubble-phase listener before it ever reached
+      // us here, so our double-click-hold would just never fire. A capture
+      // listener runs on the way DOWN to the real target, before any of that
+      // internal handling gets a chance to run, so we always see the press —
+      // and calling stopPropagation() ourselves, only once we've confirmed a
+      // double-click, stops it from ever reaching model-viewer's own controls
+      // at all (so a plain single click still orbits the model as normal).
       mv.addEventListener('mousedown', function(e){
         if(e.button !== 0 || state !== 'idle') return;
         var t = performance.now();
@@ -1064,7 +1074,7 @@
           e.stopPropagation();
           startGrab(e);
         }
-      });
+      }, true);
     }
     document.querySelectorAll('model-viewer.model-inline').forEach(function(mv){
       bindGrabThrow(mv, mv.closest('.model-wrap'));
