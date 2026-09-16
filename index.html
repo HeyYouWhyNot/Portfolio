@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Isaac Goh — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,500;0,600;1,500&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<style>
+  :root{
+    --ink:#1a1a1a;
+    --paper:#faf9f6;
+    --paper-alt:#f1efe9;
+    --line:#e2ded4;
+    --accent:#c1502e;
+    --accent-soft:#f4e3da;
+    --muted:#6b6558;
+    --card:#ffffff;
+    --good:#3f7d5c;
+    --good-soft:#e3efe7;
+    --warn:#a9762f;
+    --warn-soft:#f4ead9;
+    --nav-bg: rgba(250,249,246,0.92);
+    color-scheme: light;
+  }
+  @media (prefers-reduced-motion: no-preference){
+    html{scroll-behavior:smooth;}
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    line-height:1.55;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  img{max-width:100%;display:block;}
+  [hidden]{display:none!important;}
+
+  .wrap{max-width:980px;margin:0 auto;padding:0 24px;}
+
+  /* ---- Nav ---- */
+  header.nav{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:50;
+    background:var(--nav-bg);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    transition:box-shadow 0.3s ease;
+  }
+  header.nav.scrolled{box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+  .nav-inner{
+    max-width:980px;margin:0 auto;padding:16px 24px;
+    display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  }
+  .nav-name{font-weight:700;letter-spacing:0.02em;font-size:15px;}
+  .nav-links{display:flex;gap:22px;flex-wrap:wrap;}
+  .nav-links a{color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;opacity:0.75;}
+  .nav-links a:hover{opacity:1;}
+
+  /* ---- Hero ---- */
+  .hero{padding:72px 0 56px;}
+  .eyebrow{
+    display:inline-block;font-size:12.5px;font-weight:600;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+    padding:5px 12px;border-radius:100px;margin-bottom:22px;
+  }
+  h1.title{
+    font-family:'Fraunces',serif;font-weight:600;
+    font-size:clamp(34px,6vw,54px);line-height:1.08;margin:0 0 20px;letter-spacing:-0.01em;
+  }
+  h1.title em{color:var(--accent);font-style:italic;}
+  .hero p.lede{font-size:18px;color:var(--ink);opacity:0.88;max-width:620px;margin:0 0 28px;}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;
+    font-weight:600;font-size:14.5px;text-decoration:none;border:1px solid transparent;
+  }
+  .btn-primary{background:var(--ink);color:var(--paper);}
+  .btn-secondary{background:transparent;color:var(--ink);border-color:var(--line);}
+
+  /* ---- Section headings ---- */
+  section{padding:52px 0;border-top:1px solid var(--line);}
+  .section-head{margin-bottom:32px;}
+  .section-kicker{font-size:12.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);}
+  .section-head h2{font-family:'Fraunces',serif;font-weight:600;font-size:28px;margin:6px 0 0;}
+
+  /* ---- Project cards ---- */
+  .project{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:28px;margin-bottom:22px;
+  }
+  .project-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px;}
+  .project h3{font-size:19px;margin:0;font-weight:700;}
+  .project .meta{font-size:13px;color:var(--muted);margin-top:4px;}
+  .tags{display:flex;gap:8px;flex-wrap:wrap;}
+  .tag{
+    font-size:11.5px;font-weight:600;background:var(--paper-alt);color:var(--muted);
+    padding:4px 10px;border-radius:100px;white-space:nowrap;
+  }
+  .project p.desc{margin:0 0 16px;color:var(--ink);opacity:0.88;font-size:15px;}
+  .project ul{margin:0 0 16px;padding-left:18px;color:var(--ink);opacity:0.88;font-size:15px;}
+  .project ul li{margin-bottom:4px;}
+
+  /* ---- Project sub-sections ---- */
+  .subhead{
+    font-size:12px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;
+    color:var(--muted);margin:22px 0 10px;
+  }
+  .subhead:first-of-type{margin-top:2px;}
+
+  /* ---- Horizontal scroll galleries ---- */
+  .hscroll{
+    display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;
+    padding:4px 4px 14px;margin:0 -4px;-webkit-overflow-scrolling:touch;
+  }
+  .hscroll::-webkit-scrollbar{height:7px;}
+  .hscroll::-webkit-scrollbar-track{background:transparent;}
+  .hscroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:100px;}
+  .hscroll img{
+    flex:0 0 auto;height:230px;width:auto;max-width:80vw;border-radius:10px;
+    scroll-snap-align:start;
+  }
+  .hscroll img.photo{border:1px solid var(--line);background:var(--paper-alt);}
+  .hscroll img.cutout{background:transparent;}
+  @media (max-width:640px){
+    .hscroll img{height:180px;}
+  }
+
+  .video-note{
+    display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink);opacity:0.9;
+    background:var(--paper-alt);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin-top:14px;
+  }
+  .video-embed{
+    position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;
+    border:1px solid var(--line);margin-top:16px;background:#000;
+  }
+  .video-embed iframe,
+  .video-embed video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:contain;background:#000;}
+
+  /* ---- Scroll-reveal ---- */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity 0.7s ease, transform 0.7s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1;transform:none;transition:none;}
+  }
+
+  .caption{font-size:12.5px;color:var(--muted);font-style:italic;margin:8px 0 0;}
+
+  /* ---- App mockup (recreated concept UI) ----
+     Forced to its own fixed light theme regardless of site/page theme —
+     a real screenshot wouldn't change with the viewer's OS setting, so this
+     re-declares the palette variables locally for everything inside it. */
+  .mockup-frame{
+    --ink:#1a1a1a; --muted:#6b6558; --line:#e2ded4; --paper-alt:#f1efe9;
+    --good:#3f7d5c; --good-soft:#e3efe7; --warn:#a9762f; --warn-soft:#f4ead9;
+    --accent:#c1502e; --accent-soft:#f4e3da;
+    border:1px solid #e2ded4;border-radius:12px;overflow:hidden;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.04);
+    color:#1a1a1a;
+  }
+  .mockup-topbar{
+    background:#1e2a38;color:#fff;padding:10px 16px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  }
+  .mockup-topbar .app-name{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;}
+  .mockup-topbar .app-name .dot{width:8px;height:8px;border-radius:50%;background:#5aa9e6;}
+  .mockup-topbar .app-user{font-size:11.5px;opacity:0.75;}
+  .mockup-tabs{
+    display:flex;gap:2px;background:#f1efe9;padding:0 10px;border-bottom:1px solid var(--line);
+    overflow-x:auto;
+  }
+  .mockup-tabs span{
+    font-size:12px;font-weight:600;color:var(--muted);padding:10px 12px;white-space:nowrap;border-bottom:2px solid transparent;
+  }
+  .mockup-tabs span.active{color:var(--ink);border-bottom-color:var(--accent);}
+  .mockup-body{padding:20px;}
+  .mockup-body h5{margin:0 0 2px;font-size:15px;}
+  .mockup-body .sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+  .mockup-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+  .mockup-field{display:flex;flex-direction:column;gap:5px;}
+  .mockup-field label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.03em;}
+  .mockup-field .value{
+    border:1px solid var(--line);border-radius:7px;padding:8px 10px;font-size:13px;background:#fbfaf7;
+  }
+  .status-pill{
+    display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:100px;
+  }
+  .status-pill.draft{background:var(--warn-soft);color:var(--warn);}
+  .status-pill.approved{background:var(--good-soft);color:var(--good);}
+  .approval-chain{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:4px 0 16px;}
+  .approval-step{
+    font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:100px;border:1px solid var(--line);
+    background:#fbfaf7;color:var(--muted);
+  }
+  .approval-step.done{background:var(--good-soft);color:var(--good);border-color:transparent;}
+  .approval-step.current{background:var(--accent-soft);color:var(--accent);border-color:transparent;}
+  .approval-arrow{color:var(--muted);font-size:12px;}
+  .sig-box{
+    border:1px solid var(--line);border-radius:8px;height:64px;display:flex;align-items:flex-end;
+    padding:6px 12px;background:#fbfaf7;position:relative;
+  }
+  .sig-box .sig-text{font-family:'Caveat',cursive;font-size:26px;color:#33475b;line-height:1;}
+  .sig-box .sig-line{position:absolute;left:12px;right:12px;bottom:14px;border-bottom:1px solid #c9c3b4;}
+  .related-tag{
+    display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--muted);
+    background:var(--paper-alt);padding:4px 10px;border-radius:8px;margin-top:2px;
+  }
+
+  /* ---- Architecture diagram ---- */
+  .diagram{border:1px solid var(--line);border-radius:12px;padding:20px;background:#fbfaf7;}
+  .diagram-row{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch;}
+  .diagram-col h6{
+    margin:0 0 10px;font-size:11px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;
+  }
+  .diagram-col.before h6{color:var(--warn);}
+  .diagram-col.after h6{color:var(--good);}
+  .diagram-box{
+    border-radius:9px;padding:10px 12px;font-size:12.5px;font-weight:600;margin-bottom:8px;
+    border:1px solid var(--line);background:#fff;
+  }
+  .diagram-col.before .diagram-box{background:var(--warn-soft);border-color:transparent;color:var(--warn);}
+  .diagram-col.after .diagram-box{background:var(--good-soft);border-color:transparent;color:var(--good);}
+  .diagram-box .sub{display:block;font-weight:500;font-size:11.5px;opacity:0.85;margin-top:2px;}
+  .diagram-flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+  .diagram-flag{
+    font-size:10.5px;font-weight:700;background:var(--card);border:1px solid var(--warn);color:var(--warn);
+    padding:3px 8px;border-radius:100px;
+  }
+  .diagram-arrow{
+    display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:22px;font-weight:700;
+  }
+  .diagram-callout{
+    margin-top:16px;padding:12px 14px;border-radius:9px;background:var(--accent-soft);
+    font-size:12.5px;color:var(--ink);opacity:0.92;
+  }
+  .diagram-callout b{color:var(--accent);}
+
+  /* ---- Interactive 3D models ----
+     Blended, borderless — the model sits directly on the page rather than
+     inside a bounded card, with a plain italic caption underneath matching
+     the rest of the project captions. */
+  model-viewer.model-inline{
+    display:block;width:100%;height:360px;margin-top:16px;
+    background:transparent;--poster-color:transparent;
+  }
+  .model-hscroll{
+    display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x proximity;
+    padding:6px 4px 14px;margin:0 -4px;-webkit-overflow-scrolling:touch;
+  }
+  .model-hscroll::-webkit-scrollbar{height:7px;}
+  .model-hscroll::-webkit-scrollbar-track{background:transparent;}
+  .model-hscroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:100px;}
+  .model-hscroll .model-item{flex:0 0 auto;width:270px;scroll-snap-align:start;}
+  .model-hscroll model-viewer{
+    display:block;width:270px;height:250px;background:transparent;--poster-color:transparent;
+  }
+  .model-hscroll .model-item .caption{margin-top:6px;text-align:center;}
+
+  @media (max-width:640px){
+    .diagram-row{grid-template-columns:1fr;}
+    .diagram-arrow{transform:rotate(90deg);padding:4px 0;}
+    .mockup-grid{grid-template-columns:1fr;}
+    model-viewer.model-inline{height:280px;}
+    .model-hscroll .model-item{width:220px;}
+    .model-hscroll model-viewer{width:220px;height:210px;}
+  }
+
+  /* ---- Skills ---- */
+  .skills-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+  .skill-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;}
+  .skill-card h4{margin:0 0 6px;font-size:14.5px;}
+  .skill-card p{margin:0;font-size:13.5px;color:var(--muted);}
+
+  /* ---- Footer ---- */
+  footer{padding:48px 0 64px;}
+  footer .foot-inner{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;
+  }
+  footer a{color:var(--ink);}
+  .note{
+    font-size:13px;color:var(--muted);background:var(--accent-soft);border:1px dashed #dcb6a4;
+    padding:10px 14px;border-radius:10px;margin-top:6px;
+  }
+
+  @media (max-width:640px){
+    .skills-grid{grid-template-columns:1fr;}
+    .nav-links{gap:14px;}
+  }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#f2efe8; --paper:#171614; --paper-alt:#211f1c; --line:#333029;
+      --card:#1f1d1a; --muted:#a39c8a; --accent:#e08a63; --accent-soft:#3a241c;
+      --good:#7cc9a0; --good-soft:#1d3227; --warn:#e0b463; --warn-soft:#332818;
+      --nav-bg: rgba(23,22,20,0.88);
+    }
+    :root:not([data-theme="light"]) header.nav.scrolled{box-shadow:0 4px 18px rgba(0,0,0,0.35);}
+    :root:not([data-theme="light"]) .diagram{background:#221f1b;}
+    :root:not([data-theme="light"]) .diagram-col.before .diagram-box,
+    :root:not([data-theme="light"]) .diagram-col.after .diagram-box{background:rgba(255,255,255,0.06);}
+    /* .mockup-frame intentionally excluded — it locks its own light palette above */
+  }
+  :root[data-theme="dark"]{
+    --ink:#f2efe8; --paper:#171614; --paper-alt:#211f1c; --line:#333029;
+    --card:#1f1d1a; --muted:#a39c8a; --accent:#e08a63; --accent-soft:#3a241c;
+    --nav-bg: rgba(23,22,20,0.88);
+  }
+  :root[data-theme="dark"] header.nav.scrolled{box-shadow:0 4px 18px rgba(0,0,0,0.35);}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="nav-name">ISAAC GOH</div>
+    <nav class="nav-links">
+      <a href="#work">Work</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="hero" style="border-top:none;">
+    <span class="eyebrow">Portfolio</span>
+    <h1 class="title">Thinks like an <em>engineer</em>,<br>builds like a <em>designer</em>.</h1>
+    <p class="lede">I'm a Computer Engineering &amp; Innovation and Design undergraduate at NUS. My work sits at the crossroads of systems, prototyping, and visual craft — from PowerApps engineering systems to 3D-printed prototypes to hand-built brand identities.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="mailto:ycgoh.isaac@gmail.com">Get in touch</a>
+      <a class="btn btn-secondary" href="web/resume.pdf">View résumé</a>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="section-head reveal">
+      <div class="section-kicker">Selected Work</div>
+      <h2>Six projects, one throughline</h2>
+    </div>
+
+    <!-- PROJECT 1: IDEATE -->
+    <div class="project reveal">
+      <div class="project-top">
+        <div>
+          <h3>NUS IDEATE 2026 — Makeathon Prototype</h3>
+          <div class="meta">Top 16 placement · NUS's flagship innovation makeathon</div>
+        </div>
+        <div class="tags">
+          <span class="tag">Product Design</span>
+          <span class="tag">3D Printing</span>
+          <span class="tag">Prototyping</span>
+        </div>
+      </div>
+      <p class="desc">As the team's only engineering member, I turned early-stage ideas into physical, testable prototypes — handling everything from target-audience interviews to CAD modelling to the final video submission.</p>
+      <ul>
+        <li>Led 3D modelling and 3D printing of multiple prototype iterations</li>
+        <li>Contributed to ideation, user interviews, and rapid concept testing</li>
+        <li>Filmed and edited the team's competition video submission</li>
+      </ul>
+      <model-viewer
+        class="model-inline"
+        src="web/models/ideate_wheelchair_lift.glb"
+        alt="3D model of the IDEATE wheelchair lift prototype — drag to rotate"
+        camera-controls
+        auto-rotate
+        loading="lazy"
+        shadow-intensity="1"
+        exposure="1">
+      </model-viewer>
+      <p class="caption">Interactive model, exported from the actual CAD assembly — drag to rotate, scroll/pinch to zoom.</p>
+      <div class="video-embed">
+        <iframe src="https://www.youtube.com/embed/NT44-sUiYPo" title="NUS IDEATE 2026 competition submission video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+      </div>
+      <p class="caption">The team's full competition submission video — pitch, prototype demo, and testing.</p>
+    </div>
+
+    <!-- PROJECT 2: ECR/ECN -->
+    <div class="project reveal">
+      <div class="project-top">
+        <div>
+          <h3>ECR/ECN System Redesign</h3>
+          <div class="meta">Controls Engineer Intern · Universal Studios Singapore Technical Services (RWS)</div>
+        </div>
+        <div class="tags">
+          <span class="tag">Systems Design</span>
+          <span class="tag">Microsoft PowerApps</span>
+          <span class="tag">Internship</span>
+        </div>
+      </div>
+      <p class="desc">The department tracked every Engineering Change Request/Notification with Word forms and a manually maintained Excel log — no audit trail, no draft state, no notifications, and sequencing gaps from years of manual upkeep. I designed a replacement system end-to-end and presented it to management.</p>
+      <ul>
+        <li>Mapped pain points in the legacy paper/Excel workflow and translated them into system requirements</li>
+        <li>Designed the new architecture: Power Apps canvas app, a 12-table Dataverse schema, and 9 Power Automate flows for approvals and notifications</li>
+        <li>Solved a hard constraint — company policy prohibits digital signatures — by building handwritten pen-input signature capture into the form</li>
+        <li>Redefined ECNs as immutable submitted records (rather than editable living documents), with follow-ups handled as new, linked ECNs — a decision that removed a whole class of version-control ambiguity</li>
+      </ul>
+
+      <div class="mockup-frame" style="margin-bottom:10px;">
+        <div class="mockup-topbar">
+          <div class="app-name"><span class="dot"></span> EC Log — Engineering Change System</div>
+          <div class="app-user">Signed in as I. Goh · Technical Services</div>
+        </div>
+        <div class="mockup-tabs">
+          <span>Dashboard</span>
+          <span class="active">New ECR</span>
+          <span>My Requests</span>
+          <span>Approvals</span>
+          <span>EC Log</span>
+        </div>
+        <div class="mockup-body">
+          <h5>New Engineering Change Request</h5>
+          <div class="sub">ECR-2026-0143 &nbsp;·&nbsp; <span class="status-pill draft">● Draft</span></div>
+          <div class="mockup-grid">
+            <div class="mockup-field">
+              <label>System / Attraction</label>
+              <div class="value">Attraction B — Ride Control PLC</div>
+            </div>
+            <div class="mockup-field">
+              <label>Priority</label>
+              <div class="value">High</div>
+            </div>
+            <div class="mockup-field" style="grid-column:1/-1;">
+              <label>Description of Change</label>
+              <div class="value">Replace faulted proximity sensor input card on station-stop safety circuit; update ladder logic mapping accordingly.</div>
+            </div>
+            <div class="mockup-field" style="grid-column:1/-1;">
+              <label>Related ECN</label>
+              <div class="related-tag">🔗 Linked to ECN-2025-0091 (original fault report)</div>
+            </div>
+          </div>
+          <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.03em;">Approval Chain</label>
+          <div class="approval-chain">
+            <span class="approval-step done">✓ Supervisor</span>
+            <span class="approval-arrow">→</span>
+            <span class="approval-step current">Engineering Manager</span>
+            <span class="approval-arrow">→</span>
+            <span class="approval-step">Technical Director</span>
+          </div>
+          <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.03em;">Requestor Signature</label>
+          <div class="sig-box"><span class="sig-text">Isaac Goh</span><span class="sig-line"></span></div>
+        </div>
+      </div>
+      <p class="caption">Recreated concept UI illustrating the design — not a screenshot of the live system. All names, IDs, and details shown are fictitious.</p>
+
+      <div class="diagram" style="margin-top:16px;">
+        <div class="diagram-row">
+          <div class="diagram-col before">
+            <h6>Before</h6>
+            <div class="diagram-box">Word / ODT paper forms<span class="sub">Filled &amp; routed manually</span></div>
+            <div class="diagram-box">Manually maintained Excel log<span class="sub">Single shared spreadsheet</span></div>
+            <div class="diagram-flags">
+              <span class="diagram-flag">No audit trail</span>
+              <span class="diagram-flag">No draft state</span>
+              <span class="diagram-flag">ID gaps &amp; dirty data</span>
+              <span class="diagram-flag">No notifications</span>
+              <span class="diagram-flag">No cross-referencing</span>
+            </div>
+          </div>
+          <div class="diagram-arrow">→</div>
+          <div class="diagram-col after">
+            <h6>After</h6>
+            <div class="diagram-box">Power Apps canvas app<span class="sub">Frontend for ECR/ECN submission</span></div>
+            <div class="diagram-box">Dataverse — 12-table schema<span class="sub">Structured, queryable records</span></div>
+            <div class="diagram-box">Power Automate — 9 flows<span class="sub">Approvals, notifications, escalation</span></div>
+            <div class="diagram-box">Entra ID · SharePoint<span class="sub">Auth &amp; file storage</span></div>
+          </div>
+        </div>
+        <div class="diagram-callout">
+          <b>Key constraint:</b> company policy prohibits digital signatures — so approvals still capture a handwritten signature via a pen-input control, keeping the new system compliant while removing everything else manual.
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECT 3: ER1 -->
+    <div class="project reveal">
+      <div class="project-top">
+        <div>
+          <h3>Endurance Run 1</h3>
+          <div class="meta">Co-Founder · Community run club (~1 year)</div>
+        </div>
+        <div class="tags">
+          <span class="tag">Branding</span>
+          <span class="tag">Graphic Design</span>
+          <span class="tag">Merch</span>
+          <span class="tag">Community</span>
+        </div>
+      </div>
+      <p class="desc">Co-founded and ran a community run club end-to-end — the brand identity and merchandise line, and the events and collaborations that actually built the community around it.</p>
+
+      <div class="subhead">Community &amp; Events</div>
+      <ul>
+        <li>Planned and ran regular group runs and social events</li>
+        <li>Organised collaboration run events with other run/lifestyle brands (Saltify, Beyond Mile Club)</li>
+      </ul>
+      <div class="hscroll">
+        <img class="photo" src="web/images/er1_events/event_01.jpg" alt="ER1 group photo, Marina Bay">
+        <img class="photo" src="web/images/er1_events/event_02.jpg" alt="ER1 run club members before a run">
+        <img class="photo" src="web/images/er1_events/event_03.jpg" alt="ER1 run club night run">
+        <img class="photo" src="web/images/er1_events/event_04.jpg" alt="ER1 run club group photo at dusk">
+        <img class="photo" src="web/images/er1_events/event_05.jpg" alt="Large ER1 group photo, Marina Bay skyline">
+        <img class="photo" src="web/images/er1_events/event_06.jpg" alt="ER1 night run group photo">
+        <img class="photo" src="web/images/er1_events/event_07.jpg" alt="ER1 collaboration event group photo">
+        <img class="photo" src="web/images/er1_events/event_08.jpg" alt="ER1 hydration station at a run event">
+        <img class="photo" src="web/images/er1_events/event_09.jpg" alt="ER1 run club group photo by the water">
+        <img class="photo" src="web/images/er1_events/event_10.jpg" alt="ER1 x Beyond Mile Club collaboration event">
+        <img class="photo" src="web/images/er1_events/event_11.jpg" alt="ER1 run club group photo">
+        <img class="photo" src="web/images/er1_events/event_12.jpg" alt="ER1 run club members warming up">
+        <img class="photo" src="web/images/er1_events/event_13.jpg" alt="ER1 members stretching before a run">
+        <img class="photo" src="web/images/er1_events/event_14.jpg" alt="ER1 run club group photo at sunrise">
+      </div>
+
+      <div class="subhead">Brand &amp; Merchandise</div>
+      <ul>
+        <li>Designed logo, motifs, and graphic identity</li>
+        <li>Sourced suppliers and managed the fabrication process</li>
+      </ul>
+      <div class="hscroll">
+        <img class="cutout" src="web/images/er1_logo.png" alt="ER1 wordmark logo">
+        <img class="cutout" src="web/images/er1_tanktop_mockup.png" alt="ER1 tank top merch, front and back">
+        <img class="cutout" src="web/images/er1_stat_sticker.png" alt="ER1 sticker styled as a nutrition-facts panel, listing run stats instead">
+        <img class="cutout" src="web/images/er1_sticker_cream.png" alt="ER1 boxed logo sticker, cream colourway">
+        <img class="cutout" src="web/images/er1_sticker_black.png" alt="ER1 boxed logo sticker, black colourway">
+        <img class="photo" src="web/images/er1_merch_drop.jpg" alt="ER1 apparel lineup flat-lay">
+        <img class="photo" src="web/images/er1_saltify_poster.jpg" alt="Poster for an ER1 x Saltify collaboration run event">
+        <img class="photo" src="web/images/er1_run2rave.jpg" alt="Poster for an ER1 run club x cafe matcha latte promotion">
+      </div>
+      <p class="caption">Logo, merch, event posters, and a "nutrition facts" sticker gag that swaps in run stats instead — all designed and fabricated for the club.</p>
+
+      <model-viewer
+        class="model-inline"
+        src="web/models/er1.glb"
+        alt="3D model of an ER1 emblem, 3D-printed — drag to rotate"
+        camera-controls
+        auto-rotate
+        loading="lazy"
+        shadow-intensity="1"
+        exposure="1">
+      </model-viewer>
+      <p class="caption">A 3D-printed ER1 emblem piece — drag to rotate, scroll/pinch to zoom.</p>
+    </div>
+
+    <!-- PROJECT 4: KWOH -->
+    <div class="project reveal">
+      <div class="project-top">
+        <div>
+          <h3>KWOH Distributions — Freelance Design</h3>
+          <div class="meta">Freelance Graphic Designer</div>
+        </div>
+        <div class="tags">
+          <span class="tag">Graphic Design</span>
+          <span class="tag">Illustration</span>
+          <span class="tag">Brand Identity</span>
+          <span class="tag">Freelance</span>
+        </div>
+      </div>
+      <p class="desc">Freelanced across a run of branding and illustration work, including the full visual identity for NUS School of Computing's Freshman Orientation Programme (SOC FOP) — logo, a four-"House" sub-brand system, mascot character illustration, and event key-art.</p>
+      <ul>
+        <li>Designed the SOC FOP logo and overall event branding</li>
+        <li>Built a four-way "House" identity system (Ares, Hades, Poseidon, Zeus) — a distinct icon and colour treatment per house</li>
+        <li>Illustrated original mascot characters used across merch and social assets</li>
+        <li>Delivered a full logo lockup sheet for client use across formats</li>
+      </ul>
+      <div class="hscroll">
+        <img class="cutout" src="web/images/kwoh_soc_fop_logo.png" alt="SOC FOP event logo">
+        <img class="photo" src="web/images/kwoh_soc_fop_bg.jpg" alt="SOC FOP key-art background">
+        <img class="cutout" src="web/images/kwoh_house_ares.png" alt="House Ares sub-brand mark">
+        <img class="cutout" src="web/images/kwoh_house_hades.png" alt="House Hades sub-brand mark">
+        <img class="cutout" src="web/images/kwoh_house_poseidon.png" alt="House Poseidon sub-brand mark">
+        <img class="cutout" src="web/images/kwoh_house_zeus.png" alt="House Zeus sub-brand mark">
+        <img class="cutout" src="web/images/kwoh_ice_coffee.png" alt="Original mascot character illustration, iced coffee">
+        <img class="cutout" src="web/images/kwoh_matcha.png" alt="Original mascot character illustration, matcha">
+        <img class="cutout" src="web/images/kwoh_artwork_2.png" alt="SOC FOP mascot illustration, full colour">
+        <img class="cutout" src="web/images/kwoh_artwork_3.png" alt="SOC FOP mascot illustration, alternate colourway">
+        <img class="cutout" src="web/images/kwoh_logo_sheet.png" alt="KWOH logo lockup sheet">
+      </div>
+      <p class="caption">Freshman Orientation branding for NUS School of Computing — event identity, a four-house sub-brand system, and original mascot illustration, plus a client-facing logo lockup sheet.</p>
+    </div>
+
+    <!-- PROJECT 5: Personal creative practice -->
+    <div class="project reveal">
+      <div class="project-top">
+        <div>
+          <h3>Personal Creative Practice</h3>
+          <div class="meta">3D printing · Crochet · Drawing</div>
+        </div>
+        <div class="tags">
+          <span class="tag">Personal Craft</span>
+          <span class="tag">Visual Design</span>
+          <span class="tag">3D Modelling</span>
+        </div>
+      </div>
+      <p class="desc">Outside of coursework, I make things by hand across a range of media — a habit that feeds directly back into how I prototype and design. A small selection below: cover art and label design for personal music projects, a packaging design exercise, and a few 3D-printed pieces made purely because I wanted to see them exist.</p>
+      <div class="hscroll">
+        <img class="photo" src="web/images/casette_cover.jpg" alt="Cassette mixtape cover art, titled To Put the Quit In Unrequited">
+        <img class="photo" src="web/images/casette_side_a.jpg" alt="Cassette Side A label art">
+        <img class="photo" src="web/images/casette_side_b.jpg" alt="Cassette Side B label art">
+        <img class="photo" src="web/images/vinyl_bg.jpg" alt="Vinyl record label art, This Is A Life, black and gold colourway">
+        <img class="photo" src="web/images/vinyl_full_colour.jpg" alt="Vinyl record label art, This Is A Life, full colour psychedelic colourway">
+        <img class="cutout" src="web/images/tide_bottle.png" alt="Parody Tide detergent bottle label, a packaging design exercise">
+      </div>
+      <p class="caption">Cassette mixtape art ("To Put the 'Quit' In Unrequited"), two colourways of a vinyl record label design ("This Is A Life"), and a parody detergent-bottle label done as a packaging design exercise.</p>
+
+      <div class="model-hscroll">
+        <div class="model-item">
+          <model-viewer src="web/models/centipede.glb" alt="3D-printed articulated centipede model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+          <p class="caption">Articulated centipede — multi-part 3D print</p>
+        </div>
+        <div class="model-item">
+          <model-viewer src="web/models/launcher.glb" alt="3D-printed wheeled launcher rover model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+          <p class="caption">Wheeled launcher rover — 3D print</p>
+        </div>
+        <div class="model-item">
+          <model-viewer src="web/models/leg_armour.glb" alt="3D-printed leg armour plate set model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+          <p class="caption">Leg armour plate set — 3D print</p>
+        </div>
+        <div class="model-item">
+          <model-viewer src="web/models/vape_flute.glb" alt="3D-printed model, a vape shaped like a flute" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+          <p class="caption">A vape... that's actually a flute — 3D print</p>
+        </div>
+      </div>
+      <p class="caption">All four models are interactive — drag to rotate, scroll/pinch to zoom.</p>
+    </div>
+
+    <!-- PROJECT 6: AEGIS -->
+    <div class="project reveal">
+      <div class="project-top">
+        <div>
+          <h3>AEGIS — Peel-Off Boot Protectant</h3>
+          <div class="meta">CDE2300 Product Design &amp; Innovation · Team project with Dongjin Shin, Mahiraa Thakur, Lim Zi Han, and Wu Hao Wern</div>
+        </div>
+        <div class="tags">
+          <span class="tag">Product Design</span>
+          <span class="tag">User Research</span>
+          <span class="tag">3D Printing</span>
+        </div>
+      </div>
+      <p class="desc">A full product design cycle from field research to physical prototype: we interviewed hikers, ran affinity clustering on the transcripts, and landed on a problem most people undersold in interviews but clearly resented — how troublesome it is to clean mud and dirt off boots after a hike. AEGIS is a sprayable liquid that dries into a thin biodegradable film over boots and shoes; after the hike, it peels off in one go, taking the accumulated dirt with it.</p>
+      <ul>
+        <li>Conducted hiker interviews and synthesised findings into a Jobs-To-Be-Done framework and persona</li>
+        <li>Identified the target problem through affinity clustering, not the loudest complaint but the one interviewees consistently avoided dealing with</li>
+        <li>Designed and 3D-printed the spray canister prototype</li>
+      </ul>
+      <div class="hscroll">
+        <img class="cutout" src="web/images/aegis_logo.png" alt="AEGIS product logo, a boot-shaped mark">
+      </div>
+
+      <model-viewer
+        class="model-inline"
+        src="web/models/spraycan.glb"
+        alt="3D model of the AEGIS spray canister prototype — drag to rotate"
+        camera-controls
+        auto-rotate
+        loading="lazy"
+        shadow-intensity="1"
+        exposure="1">
+      </model-viewer>
+      <p class="caption">The 3D-printed canister prototype — drag to rotate, scroll/pinch to zoom.</p>
+
+      <div class="video-embed">
+        <video controls preload="metadata" poster="web/video/aegis_poster.jpg">
+          <source src="web/video/aegis_presentation.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="caption">The full midterm presentation, screen-recorded — research, persona work, ideation, and the final concept.</p>
+    </div>
+
+  </section>
+
+  <section id="skills">
+    <div class="section-head reveal">
+      <div class="section-kicker">Skillset</div>
+      <h2>An all-rounder across engineering, design thinking, and visual craft</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card reveal">
+        <h4>Engineering &amp; Technical</h4>
+        <p>Computational thinking &amp; problem-solving · Python, C, C++, Microsoft PowerApps, Verilog</p>
+      </div>
+      <div class="skill-card reveal">
+        <h4>Design Thinking &amp; Innovation</h4>
+        <p>Design thinking &amp; value creation, from ideation through to prototyping</p>
+      </div>
+      <div class="skill-card reveal">
+        <h4>Visual &amp; Multimedia Design</h4>
+        <p>Autodesk Fusion 360, NomadSculpt, Procreate, Adobe Illustrator, Adobe Photoshop</p>
+      </div>
+      <div class="skill-card reveal">
+        <h4>Leadership &amp; Communication</h4>
+        <p>Team leadership &amp; mentoring · Presentation skills</p>
+      </div>
+    </div>
+  </section>
+
+  <footer id="contact">
+    <div class="foot-inner">
+      <div>
+        <div class="nav-name" style="margin-bottom:8px;">ISAAC GOH YONG CHEE</div>
+        <div style="font-size:14px;color:var(--muted);">
+          <a href="mailto:ycgoh.isaac@gmail.com">ycgoh.isaac@gmail.com</a>
+        </div>
+      </div>
+      <div class="note">Working draft — everything above is real work, except the ECR/ECN screens, which are a recreated concept mockup (clearly labelled), not a screenshot of the live system.</div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  (function(){
+    // Nav bar shadow once the page has scrolled past the hero
+    var nav = document.querySelector('header.nav');
+    function onScroll(){
+      if(window.scrollY > 8){ nav.classList.add('scrolled'); }
+      else { nav.classList.remove('scrolled'); }
+    }
+    document.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+
+    // Scroll-triggered reveal — fade/slide elements in as they enter the viewport.
+    // Skips entirely for users who've asked their OS to reduce motion.
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!prefersReducedMotion && 'IntersectionObserver' in window){
+      var revealObserver = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            entry.target.classList.add('in');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, {threshold:0.12, rootMargin:'0px 0px -40px 0px'});
+      document.querySelectorAll('.reveal').forEach(function(el){ revealObserver.observe(el); });
+    } else {
+      document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
+    }
+  })();
+</script>
+</body>
+</html>
