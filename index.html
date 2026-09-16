@@ -274,23 +274,12 @@
   model-viewer.model-inline{
     display:block;width:100%;height:360px;margin-top:16px;
     background:transparent;--poster-color:transparent;
+    transform-origin:center center;
+    transition:transform 0.15s ease-out;
+    position:relative;
   }
-  .model-hscroll{
-    display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x proximity;
-    padding:6px 4px 14px;margin:0 -4px;-webkit-overflow-scrolling:touch;
-  }
-  .model-hscroll::-webkit-scrollbar{height:7px;}
-  .model-hscroll::-webkit-scrollbar-track{background:transparent;}
-  .model-hscroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:100px;}
-  .model-hscroll .model-item{flex:0 0 auto;width:270px;scroll-snap-align:start;}
-  .model-hscroll model-viewer{
-    display:block;width:270px;height:250px;background:transparent;--poster-color:transparent;
-  }
-  .model-hscroll .model-item .caption{margin-top:6px;text-align:center;}
-
   /* ---- Expand button on 3D models (opens a larger interactive view in the lightbox) ---- */
   .model-wrap{position:relative;}
-  .model-hscroll .model-item{position:relative;}
   .model-expand-btn{
     position:absolute;top:26px;right:10px;z-index:5;
     width:34px;height:34px;border-radius:50%;
@@ -300,7 +289,51 @@
   }
   .model-expand-btn:hover{background:rgba(20,18,16,0.75);}
   .model-expand-btn svg{width:15px;height:15px;display:block;}
-  .model-hscroll .model-item .model-expand-btn{top:10px;}
+
+  /* ---- "Breaking out of the box" — zooming into an inline model with
+     scroll/pinch scales the whole element past its own card, so the model
+     visually grows larger than its container instead of clipping at the
+     edge. Bumped above later cards while zoomed so it renders in front. ---- */
+  .model-wrap.zoomed{z-index:40;}
+  .reveal.settled{transform:none;}
+
+  /* ---- One-at-a-time model carousel (Personal Creative Practice) ----
+     Hovering the left/right edge of the current model reveals an arrow;
+     clicking it swaps to the previous/next model. Only the active slide
+     is visible, so it gets the same "breaks out of its box" zoom as any
+     other single inline model. ---- */
+  .model-carousel{margin-top:16px;}
+  .carousel-track{position:relative;width:100%;height:360px;}
+  .carousel-slide{
+    position:absolute;inset:0;
+    opacity:0;visibility:hidden;
+    transition:opacity 0.3s ease;
+    pointer-events:none;
+  }
+  .carousel-slide.active{opacity:1;visibility:visible;pointer-events:auto;}
+  .carousel-slide model-viewer.model-inline{width:100%;height:100%;margin-top:0;}
+  .carousel-nav{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:42px;height:42px;border-radius:50%;z-index:45;
+    background:rgba(20,18,16,0.5);color:#fff;border:none;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    opacity:0;pointer-events:none;
+    transition:opacity 0.2s ease, background 0.15s ease;
+  }
+  .carousel-nav:hover{background:rgba(20,18,16,0.75);}
+  .carousel-nav svg{width:19px;height:19px;display:block;}
+  .carousel-nav.prev{left:12px;}
+  .carousel-nav.next{right:12px;}
+  .carousel-nav.visible{opacity:1;pointer-events:auto;}
+  .carousel-dots{display:flex;justify-content:center;gap:8px;margin-top:14px;}
+  .carousel-dots .dot{
+    width:8px;height:8px;padding:0;border-radius:50%;border:none;
+    background:var(--line);cursor:pointer;
+  }
+  .carousel-dots .dot.active{background:var(--accent);}
+  @media (hover:none){
+    .carousel-nav{opacity:1;pointer-events:auto;}
+  }
 
   .lightbox model-viewer{
     width:min(90vw,880px);height:min(80vh,640px);
@@ -312,8 +345,7 @@
     .diagram-arrow{transform:rotate(90deg);padding:4px 0;}
     .mockup-grid{grid-template-columns:1fr;}
     model-viewer.model-inline{height:280px;}
-    .model-hscroll .model-item{width:220px;}
-    .model-hscroll model-viewer{width:220px;height:210px;}
+    .carousel-track{height:280px;}
   }
 
   /* ---- Skills ---- */
@@ -660,29 +692,35 @@
       </div>
       <p class="caption">Various projects.</p>
 
-      <div class="model-hscroll">
-        <div class="model-item">
-          <model-viewer src="web/models/centipede.glb" alt="3D-printed articulated centipede model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
-          <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
-          <p class="caption">Articulated centipede — multi-part 3D model</p>
+      <div class="model-carousel">
+        <div class="carousel-track">
+          <div class="model-wrap carousel-slide active" data-caption="Articulated centipede — multi-part 3D model, drag to rotate, scroll/pinch to zoom.">
+            <model-viewer class="model-inline" src="web/models/centipede.glb" alt="3D-printed articulated centipede model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+            <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
+          </div>
+          <div class="model-wrap carousel-slide" data-caption="Wheeled launcher rover — 3D model, drag to rotate, scroll/pinch to zoom.">
+            <model-viewer class="model-inline" src="web/models/launcher.glb" alt="3D-printed wheeled launcher rover model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+            <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
+          </div>
+          <div class="model-wrap carousel-slide" data-caption="Leg armour plate set — 3D model, drag to rotate, scroll/pinch to zoom.">
+            <model-viewer class="model-inline" src="web/models/leg_armour.glb" alt="3D-printed leg armour plate set model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+            <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
+          </div>
+          <div class="model-wrap carousel-slide" data-caption="A flute — 3D model, drag to rotate, scroll/pinch to zoom.">
+            <model-viewer class="model-inline" src="web/models/vape_flute.glb" alt="3D-printed model, a vape shaped like a flute" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+            <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
+          </div>
+          <button class="carousel-nav prev" type="button" aria-label="Previous model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+          <button class="carousel-nav next" type="button" aria-label="Next model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
         </div>
-        <div class="model-item">
-          <model-viewer src="web/models/launcher.glb" alt="3D-printed wheeled launcher rover model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
-          <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
-          <p class="caption">Wheeled launcher rover — 3D model</p>
-        </div>
-        <div class="model-item">
-          <model-viewer src="web/models/leg_armour.glb" alt="3D-printed leg armour plate set model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
-          <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
-          <p class="caption">Leg armour plate set — 3D model</p>
-        </div>
-        <div class="model-item">
-          <model-viewer src="web/models/vape_flute.glb" alt="3D-printed model, a vape shaped like a flute" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
-          <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
-          <p class="caption">A flute — 3D model</p>
+        <div class="carousel-dots">
+          <button class="dot active" type="button" aria-label="Show model 1"></button>
+          <button class="dot" type="button" aria-label="Show model 2"></button>
+          <button class="dot" type="button" aria-label="Show model 3"></button>
+          <button class="dot" type="button" aria-label="Show model 4"></button>
         </div>
       </div>
-      <p class="caption">All four models are interactive — drag to rotate, scroll/pinch to zoom.</p>
+      <p class="caption carousel-caption">Articulated centipede — multi-part 3D model, drag to rotate, scroll/pinch to zoom.</p>
     </div>
 
     <!-- PROJECT 6: AEGIS -->
@@ -805,6 +843,93 @@
     } else {
       document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
     }
+    // Once a card's reveal transition finishes, drop its transform entirely.
+    // (It's only ever translateY(0) at that point, so this is visually a
+    // no-op — but leaving *any* transform on the card keeps it pinned to
+    // its own stacking context, which would trap an oversized model behind
+    // the next card instead of letting it grow out in front of it.)
+    document.querySelectorAll('.reveal').forEach(function(el){
+      el.addEventListener('transitionend', function(e){
+        if(e.propertyName === 'transform'){ el.classList.add('settled'); }
+      });
+    });
+
+    // Interactive models "break out of the box" — scroll/pinch-zooming into
+    // one of the inline (blended) models scales the whole element up past
+    // its own card instead of clipping at its fixed-size edge. Driven off
+    // model-viewer's own camera radius, so it only reacts to the user
+    // actually zooming in (not the ambient auto-rotate).
+    document.querySelectorAll('model-viewer.model-inline').forEach(function(mv){
+      var baseRadius = null;
+      var maxScale = 2.6;
+      mv.addEventListener('load', function(){
+        try{ baseRadius = mv.getCameraOrbit().radius; }catch(err){}
+      });
+      mv.addEventListener('camera-change', function(ev){
+        if(!baseRadius) return;
+        if(ev.detail && ev.detail.source && ev.detail.source !== 'user-interaction') return;
+        var orbit;
+        try{ orbit = mv.getCameraOrbit(); }catch(err){ return; }
+        var ratio = baseRadius / orbit.radius;
+        ratio = Math.max(1, Math.min(ratio, maxScale));
+        mv.style.transform = ratio > 1.01 ? 'scale(' + ratio.toFixed(3) + ')' : '';
+        var wrap = mv.closest('.model-wrap');
+        if(wrap){ wrap.classList.toggle('zoomed', ratio > 1.01); }
+      });
+    });
+
+    // One-at-a-time model carousel — hovering the left/right edge of the
+    // active model reveals an arrow; clicking it swaps to the previous/next
+    // model. Touch devices (no hover) just get the arrows shown outright.
+    document.querySelectorAll('.model-carousel').forEach(function(carousel){
+      var slides = Array.prototype.slice.call(carousel.querySelectorAll('.carousel-slide'));
+      var dots = Array.prototype.slice.call(carousel.querySelectorAll('.carousel-dots .dot'));
+      var captionEl = carousel.parentElement.querySelector('.carousel-caption');
+      var prevBtn = carousel.querySelector('.carousel-nav.prev');
+      var nextBtn = carousel.querySelector('.carousel-nav.next');
+      var current = slides.findIndex(function(s){ return s.classList.contains('active'); });
+      if(current < 0){ current = 0; }
+
+      function resetZoom(slide){
+        var mv = slide.querySelector('model-viewer');
+        if(mv){ mv.style.transform = ''; }
+        slide.classList.remove('zoomed');
+      }
+
+      function show(index){
+        var next = (index + slides.length) % slides.length;
+        if(next === current) return;
+        resetZoom(slides[current]);
+        slides[current].classList.remove('active');
+        if(dots[current]) dots[current].classList.remove('active');
+        current = next;
+        slides[current].classList.add('active');
+        if(dots[current]) dots[current].classList.add('active');
+        if(captionEl){ captionEl.textContent = slides[current].dataset.caption || ''; }
+      }
+
+      if(prevBtn){ prevBtn.addEventListener('click', function(){ show(current - 1); }); }
+      if(nextBtn){ nextBtn.addEventListener('click', function(){ show(current + 1); }); }
+      dots.forEach(function(dot, i){
+        dot.addEventListener('click', function(){ show(i); });
+      });
+      // Mouse clicks shouldn't focus these — focusing a button that's about
+      // to sit next to a model finishing its zoom-reset transition can make
+      // the browser "helpfully" auto-scroll the page to keep it in view.
+      [prevBtn, nextBtn].concat(dots).forEach(function(btn){
+        if(btn){ btn.addEventListener('mousedown', function(e){ e.preventDefault(); }); }
+      });
+      carousel.addEventListener('mousemove', function(e){
+        var rect = carousel.getBoundingClientRect();
+        var pct = (e.clientX - rect.left) / rect.width;
+        if(prevBtn){ prevBtn.classList.toggle('visible', pct < 0.35); }
+        if(nextBtn){ nextBtn.classList.toggle('visible', pct > 0.65); }
+      });
+      carousel.addEventListener('mouseleave', function(){
+        if(prevBtn){ prevBtn.classList.remove('visible'); }
+        if(nextBtn){ nextBtn.classList.remove('visible'); }
+      });
+    });
 
     // Lightbox — click any gallery image, or the expand button on a 3D model,
     // to see it larger against a dimmed backdrop.
