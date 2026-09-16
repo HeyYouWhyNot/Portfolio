@@ -288,6 +288,25 @@
   }
   .model-hscroll .model-item .caption{margin-top:6px;text-align:center;}
 
+  /* ---- Expand button on 3D models (opens a larger interactive view in the lightbox) ---- */
+  .model-wrap{position:relative;}
+  .model-hscroll .model-item{position:relative;}
+  .model-expand-btn{
+    position:absolute;top:26px;right:10px;z-index:5;
+    width:34px;height:34px;border-radius:50%;
+    background:rgba(20,18,16,0.5);color:#fff;border:none;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .model-expand-btn:hover{background:rgba(20,18,16,0.75);}
+  .model-expand-btn svg{width:15px;height:15px;display:block;}
+  .model-hscroll .model-item .model-expand-btn{top:10px;}
+
+  .lightbox model-viewer{
+    width:min(90vw,880px);height:min(80vh,640px);
+    background:transparent;--poster-color:transparent;
+  }
+
   @media (max-width:640px){
     .diagram-row{grid-template-columns:1fr;}
     .diagram-arrow{transform:rotate(90deg);padding:4px 0;}
@@ -391,16 +410,19 @@
         <li>Contributed to ideation, user interviews, and rapid concept testing</li>
         <li>Helped in the filming and editing of the team's competition video submission</li>
       </ul>
-      <model-viewer
-        class="model-inline"
-        src="web/models/ideate_wheelchair_lift.glb"
-        alt="3D model of the IDEATE wheelchair lift prototype — drag to rotate"
-        camera-controls
-        auto-rotate
-        loading="lazy"
-        shadow-intensity="1"
-        exposure="1">
-      </model-viewer>
+      <div class="model-wrap">
+        <model-viewer
+          class="model-inline"
+          src="web/models/ideate_wheelchair_lift.glb"
+          alt="3D model of the IDEATE wheelchair lift prototype — drag to rotate"
+          camera-controls
+          auto-rotate
+          loading="lazy"
+          shadow-intensity="1"
+          exposure="1">
+        </model-viewer>
+        <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
+      </div>
       <p class="caption">Interactive model, exported from the actual CAD assembly — drag to rotate, scroll/pinch to zoom.</p>
       <div class="video-embed">
         <iframe src="https://www.youtube.com/embed/NT44-sUiYPo" title="NUS IDEATE 2026 competition submission video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
@@ -561,16 +583,19 @@
       </div>
       <p class="caption">Logo, merch, event posters, and a "nutrition facts" sticker gag that swaps in run stats instead — all designed and fabricated for the club.</p>
 
-      <model-viewer
-        class="model-inline"
-        src="web/models/er1.glb"
-        alt="3D model of an ER1 emblem, 3D-printed — drag to rotate"
-        camera-controls
-        auto-rotate
-        loading="lazy"
-        shadow-intensity="1"
-        exposure="1">
-      </model-viewer>
+      <div class="model-wrap">
+        <model-viewer
+          class="model-inline"
+          src="web/models/er1.glb"
+          alt="3D model of an ER1 emblem, 3D-printed — drag to rotate"
+          camera-controls
+          auto-rotate
+          loading="lazy"
+          shadow-intensity="1"
+          exposure="1">
+        </model-viewer>
+        <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
+      </div>
       <p class="caption">A 3D-printed ER1 emblem piece — drag to rotate, scroll/pinch to zoom.</p>
     </div>
 
@@ -638,18 +663,22 @@
       <div class="model-hscroll">
         <div class="model-item">
           <model-viewer src="web/models/centipede.glb" alt="3D-printed articulated centipede model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+          <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
           <p class="caption">Articulated centipede — multi-part 3D model</p>
         </div>
         <div class="model-item">
           <model-viewer src="web/models/launcher.glb" alt="3D-printed wheeled launcher rover model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+          <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
           <p class="caption">Wheeled launcher rover — 3D model</p>
         </div>
         <div class="model-item">
           <model-viewer src="web/models/leg_armour.glb" alt="3D-printed leg armour plate set model" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+          <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
           <p class="caption">Leg armour plate set — 3D model</p>
         </div>
         <div class="model-item">
           <model-viewer src="web/models/vape_flute.glb" alt="3D-printed model, a vape shaped like a flute" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1"></model-viewer>
+          <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
           <p class="caption">A flute — 3D model</p>
         </div>
       </div>
@@ -679,16 +708,19 @@
         <img class="cutout" src="web/images/aegis_logo.png" alt="AEGIS product logo, a boot-shaped mark">
       </div> -->
 
-      <model-viewer
-        class="model-inline"
-        src="web/models/spraycan.glb"
-        alt="3D model of the AEGIS spray canister prototype — drag to rotate"
-        camera-controls
-        auto-rotate
-        loading="lazy"
-        shadow-intensity="1"
-        exposure="1">
-      </model-viewer>
+      <div class="model-wrap">
+        <model-viewer
+          class="model-inline"
+          src="web/models/spraycan.glb"
+          alt="3D model of the AEGIS spray canister prototype — drag to rotate"
+          camera-controls
+          auto-rotate
+          loading="lazy"
+          shadow-intensity="1"
+          exposure="1">
+        </model-viewer>
+        <button class="model-expand-btn" type="button" aria-label="Expand 3D model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
+      </div>
       <p class="caption">The 3D-printed canister prototype — drag to rotate, scroll/pinch to zoom.</p>
 
       <div class="video-embed">
@@ -740,9 +772,10 @@
 
 </div>
 
-<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Expanded image">
-  <button class="lightbox-close" id="lightboxClose" aria-label="Close image">&times;</button>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Expanded view">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
   <img id="lightboxImg" src="" alt="">
+  <model-viewer id="lightboxModel" camera-controls auto-rotate loading="lazy" shadow-intensity="1" exposure="1" style="display:none;"></model-viewer>
 </div>
 
 <script>
@@ -773,14 +806,28 @@
       document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
     }
 
-    // Lightbox — click any gallery image to see it larger against a dimmed backdrop.
+    // Lightbox — click any gallery image, or the expand button on a 3D model,
+    // to see it larger against a dimmed backdrop.
     var lightbox = document.getElementById('lightbox');
     var lightboxImg = document.getElementById('lightboxImg');
+    var lightboxModel = document.getElementById('lightboxModel');
     var lightboxClose = document.getElementById('lightboxClose');
 
-    function openLightbox(img){
+    function openImageLightbox(img){
       lightboxImg.src = img.currentSrc || img.src;
       lightboxImg.alt = img.alt || '';
+      lightboxImg.style.display = '';
+      lightboxModel.style.display = 'none';
+      lightboxModel.removeAttribute('src');
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function openModelLightbox(mv){
+      lightboxModel.setAttribute('src', mv.getAttribute('src'));
+      lightboxModel.setAttribute('alt', mv.getAttribute('alt') || '');
+      lightboxModel.style.display = '';
+      lightboxImg.style.display = 'none';
+      lightboxImg.src = '';
       lightbox.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -788,10 +835,20 @@
       lightbox.classList.remove('open');
       document.body.style.overflow = '';
       lightboxImg.src = '';
+      lightboxImg.style.display = '';
+      lightboxModel.removeAttribute('src');
+      lightboxModel.style.display = 'none';
     }
 
     document.querySelectorAll('.hscroll img').forEach(function(img){
-      img.addEventListener('click', function(){ openLightbox(img); });
+      img.addEventListener('click', function(){ openImageLightbox(img); });
+    });
+    document.querySelectorAll('.model-expand-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var mv = btn.previousElementSibling;
+        if(mv && mv.tagName === 'MODEL-VIEWER'){ openModelLightbox(mv); }
+      });
     });
     lightbox.addEventListener('click', function(e){
       if(e.target === lightbox){ closeLightbox(); }
